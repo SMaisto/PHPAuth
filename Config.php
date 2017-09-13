@@ -27,7 +27,7 @@ class Config
 
         $this->config = array();
 
-        $query = $this->dbh->query("SELECT * FROM {$this->config_table}");
+        $query = $this->dbh->query("SELECT setting, value FROM {$this->config_table}");
         $this->config = $query->fetchAll(\PDO::FETCH_KEY_PAIR);
 
         $this->setForgottenDefaults(); // Danger foreseen is half avoided.

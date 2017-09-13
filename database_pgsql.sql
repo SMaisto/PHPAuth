@@ -28,7 +28,7 @@ INSERT INTO config (setting, value) VALUES
 ('site_key',  'fghuior.)/!/jdUkd8s2!7HVHG7777ghg'),
 ('site_name', 'PHPAuth'),
 ('site_password_reset_page',  'reset'),
-('site_timezone', 'Europe/Paris'),
+('site_timezone', 'Europe/Rome'),
 ('site_url',  'https://github.com/PHPAuth/PHPAuth'),
 ('smtp',  '0'),
 ('smtp_auth', '1'),
