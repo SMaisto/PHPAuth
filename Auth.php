@@ -3,7 +3,7 @@
 namespace PHPAuth;
 
 use ZxcvbnPhp\Zxcvbn;
-use PHPMailer;
+use PHPMailer\PHPMailer\PHPMailer;
 
 /**
  * Auth class
@@ -785,8 +785,10 @@ class Auth
 
         if ($sendmail === true) {
             // Check configuration for SMTP parameters
+            /*
             $mail = new PHPMailer;
-			$mail->CharSet = $this->config->mail_charset;
+
+            $mail->CharSet = $this->config->mail_charset;
             if ($this->config->smtp) {
                 $mail->isSMTP();
                 $mail->Host = $this->config->smtp_host;
@@ -801,23 +803,42 @@ class Auth
                     $mail->SMTPSecure = $this->config->smtp_security;
                 }
             }
-
-            $mail->From = $this->config->site_email;
-            $mail->FromName = $this->config->site_name;
+                
+            $mail->From = __SYSTEM_EMAIL__;
+            $mail->FromName = __SYSTEM_NAME__;
             $mail->addAddress($email);
             $mail->isHTML(true);
+            */
 
             if ($type == "activation") {
-                    $mail->Subject = sprintf($this->lang['email_activation_subject'], $this->config->site_name);
-                    $mail->Body = sprintf($this->lang['email_activation_body'], $this->config->site_url, $this->config->site_activation_page, $key);
-                    $mail->AltBody = sprintf($this->lang['email_activation_altbody'], $this->config->site_url, $this->config->site_activation_page, $key);
+                    $Subject = sprintf($this->lang['email_activation_subject'], __SYSTEM_NAME__);
+                    $Body = sprintf($this->lang['email_activation_body'], getBaseUrl(), $this->config->site_activation_page, $key);
+                    $AltBody = sprintf($this->lang['email_activation_altbody'], getBaseUrl(), $this->config->site_activation_page, $key);
             } else {
-                $mail->Subject = sprintf($this->lang['email_reset_subject'], $this->config->site_name);
-                $mail->Body = sprintf($this->lang['email_reset_body'], $this->config->site_url, $this->config->site_password_reset_page, $key);
-                $mail->AltBody = sprintf($this->lang['email_reset_altbody'], $this->config->site_url, $this->config->site_password_reset_page, $key);
+                $Subject = _("Richiesta reset password");
+
+                $Body = _("Per eseguire il reset della password")."<br /><br />" .
+                "<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" .
+                "   <tr>" .
+                "       <td>" .
+                "           <div>" .
+                "               <!--[if mso]>" .
+                "                   <v:roundrect xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:w=\"urn:schemas-microsoft-com:office:word\" href=\"".getBaseUrl()."/".$this->config->site_password_reset_page."?key=".$key."\" style=\"height:36px;v-text-anchor:middle;width:150px;\" arcsize=\"5%\" strokecolor=\"#EB7035\" fillcolor=\"#EB7035\">" .
+                "                   <w:anchorlock/>" .
+                "                   <center style=\"color:#ffffff;font-family:Helvetica, Arial,sans-serif;font-size:16px;\">"._("Clicca qui!")." &rarr;</center>" .
+                "                   </v:roundrect>" .
+                "               <![endif]-->" .
+                "               <a href=\"".getBaseUrl()."/".$this->config->site_password_reset_page."?key=".$key."\" style=\"background-color:#EB7035;border:1px solid #EB7035;border-radius:3px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:16px;line-height:44px;text-align:center;text-decoration:none;width:150px;-webkit-text-size-adjust:none;mso-hide:all;\">"._("Clicca qui!")." &rarr;</a>" .
+                "           </div>" .
+                "       </td>" .
+                "   </tr>" .
+                "</table><br /><br />" .
+                _("Nel caso non dovesse funzionare il bottone puoi accedere alla pagina:")." <br />" .
+                "<a href=\"".getBaseUrl()."/".$this->config->site_password_reset_page."\">".getBaseUrl()."/".$this->config->site_password_reset_page."</a><br />"._("ed inserire il codice di reset:")." <b>".$key."</b>";
+                $AltBody = _("Per eseguire il reset della password")." "._("Accedi alla pagina:")." ".getBaseUrl()."/".$this->config->site_password_reset_page." "._("ed inserisci il seguente codice di reset:")." ".$key; 
             }
 
-            if (!$mail->send()) {
+            if (sendEmail(new PHPMailer(), array(array("email"=>$email, "name"=>"")), $Subject, $Body, $AltBody) != true) {
                 $this->deleteRequest($request_id);
                 $return['message'] = $this->lang["system_error"] . " #10";
 
